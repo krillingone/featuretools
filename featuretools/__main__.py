@@ -2,7 +2,7 @@ from woodwork.column_schema import ColumnSchema
 
 from featuretools.demo import load_mock_customer
 import featuretools as ft
-from woodwork.logical_types import Categorical, PostalCode
+from woodwork.logical_types import Categorical, PostalCode, Age, AgeNullable
 
 import pandas as pd
 
@@ -151,14 +151,14 @@ def main_3():
 
 def main4():
     es = ft.demo.load_mock_customer(return_entityset=True)
-    feature_matrix_product, feature_product_defs = ft.dfs(
+    feature_defs = ft.dfs(
         entityset=es,
-        target_dataframe_name="products",
+        target_dataframe_name="transactions",
         max_depth=3,
         agg_primitives=['sum', 'std', 'count'],
+        features_only=True,
     )
 
-    print(feature_matrix_product.head())
     print("point")
 
 
@@ -197,7 +197,8 @@ def main5(threshold):
         ],
     }
 
-    matrix, feats = ft.dfs(
+    # matrix, feats = ft.dfs(
+    feats = ft.dfs(
         entityset=es,
         target_dataframe_name="transactions",
         max_depth=1,
@@ -205,10 +206,10 @@ def main5(threshold):
         trans_primitives=[IsGreater],
         # trans_primitives=["multiply_numeric"],
         primitive_options=options,
-        # features_only=True,
+        features_only=True,
     )
 
-    print(matrix.head(10))
+    # print(matrix.head(10))
     print(feats)
 
 
@@ -216,4 +217,4 @@ def main5(threshold):
 
 
 if __name__ == "__main__":
-    main5(100)
+    main4()

@@ -112,11 +112,12 @@ def main_1():
     )
     es.add_relationship("customers", "customer_id", "sessions", "customer_id")
 
-    feature_matrix_product, feature_product_defs = ft.dfs(
+    feature_product_defs = ft.dfs(
         entityset=es,
         target_dataframe_name="products",
         max_depth=3,
         agg_primitives=['sum', 'std', 'count'],
+        features_only=True,
     )
     print(feature_product_defs)
 
@@ -149,7 +150,7 @@ def main_3():
     print(window_fm.head())
 
 
-def main4():
+def main_4():
     es = ft.demo.load_mock_customer(return_entityset=True)
     feature_defs = ft.dfs(
         entityset=es,
@@ -162,7 +163,7 @@ def main4():
     print("point")
 
 
-def main5(threshold):
+def main_5(threshold):
     """
     单表transactions
     构造一点点简单的扣字段变量
@@ -186,6 +187,12 @@ def main5(threshold):
         # },
     )
 
+    """
+    primitive_option 见名知意，是对primitive的配置
+    是一个一个算子的配置，每个配置下辖的列数应当与其类定义一致
+    如下，就定义了要对transactions下的amount和count_v构造一个isGreater是否大于的特征
+    和transactions下amount和const_v的相乘的特征
+    """
     options = {
         IsGreater: [
             {"include_columns": {"transactions": ["amount"]}},
@@ -213,8 +220,5 @@ def main5(threshold):
     print(feats)
 
 
-
-
-
 if __name__ == "__main__":
-    main4()
+    main_4()

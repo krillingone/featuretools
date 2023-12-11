@@ -6,7 +6,7 @@ from featuretools.utils.gen_utils import Library
 
 
 class Max(AggregationPrimitive):
-    """Calculates the highest value, ignoring `NaN` values.
+    """Calculates the highest value, ignoring `NaN` de'epvalues.
 
     Examples:
         >>> max = Max()

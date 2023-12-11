@@ -549,9 +549,12 @@ class EntitySet(object):
         """
         for relationship in self.get_backward_relationships(dataframe_name):
             child_dataframe_name = relationship._child_dataframe_name
+            # False 是后向关系
             direct_path = RelationshipPath([(False, relationship)])
             yield child_dataframe_name, direct_path
 
+            # 指定True，则递归的查找每一个子系的后向
+            # yield 会递归的深度优先返回
             if deep:
                 sub_dataframes = self.get_backward_dataframes(
                     child_dataframe_name,
@@ -576,6 +579,7 @@ class EntitySet(object):
     def get_backward_relationships(self, dataframe_name):
         """
         get relationships where dataframe "dataframe_name" is the parent.
+        根据relationship的父节点名字匹配找到该dataframe_name的后向关系列表
 
         Args:
             dataframe_name (str): Name of dataframe to get relationships for.

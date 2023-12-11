@@ -318,8 +318,10 @@ class DeepFeatureSynthesis(object):
         """
         all_features = {}
 
+        # Map<Object, Set>
         self.where_clauses = defaultdict(set)
 
+        # 返回类型，没写就是这些，大多数来说被处理过都会有个tag，没有的话可能可以拿来作为不用输出的中间变量
         if return_types is None:
             return_types = [
                 ColumnSchema(semantic_tags=["numeric"]),
@@ -333,6 +335,7 @@ class DeepFeatureSynthesis(object):
             msg = "return_types must be a list, or 'all'"
             assert isinstance(return_types, list), msg
 
+        # 跑
         self._run_dfs(
             self.es[self.target_dataframe_name],
             RelationshipPath([]),
@@ -409,22 +412,29 @@ class DeepFeatureSynthesis(object):
                 has features as values with their ids as keys.
             max_depth (int) : Maximum allowed depth of features.
         """
+        # 递归层级判断
         if max_depth is not None and max_depth < 0:
             return
 
+        # 每个dataframe都先分开记录在 all_feature 的 map item 中
         all_features[dataframe.ww.name] = {}
 
         """
         Step 1 - Create identity features
+        首先是把当前dataframe的所有列先给转成特征，毕竟原始特征也是特征
+        同时把定义的seed_feature也搞进去
         """
         self._add_identity_features(all_features, dataframe)
 
         """
         Step 2 - Recursively build features for each dataframe in a backward relationship
+        找这个dataframe的后向关系，即该表的一行可以引导其后向表多行，类似一个用户consumer可以有多个订单order
         """
-
+        # 所有的后向表列表
         backward_dataframes = self.es.get_backward_dataframes(dataframe.ww.name)
         for b_dataframe_id, sub_relationship_path in backward_dataframes:
+            # dataframe已经处理过或者在忽略列表中，跳过
+
             # Skip if we've already created features for this dataframe.
             if b_dataframe_id in all_features:
                 continue
@@ -432,13 +442,18 @@ class DeepFeatureSynthesis(object):
             if b_dataframe_id in self.ignore_dataframes:
                 continue
 
+            # 这个出来是个列表，将两个关系相加
+            # 第一次的时候relationship_path是[]，只有sub
             new_path = relationship_path + sub_relationship_path
+            # 允许的路径不为空 & 该dataframe（通过relationship拿）不在允许的路径内
+            # allowed_path 跟 ignore_dataframes 有差别，这个只是不能作为领头的前后向构造者，后者是在哪儿都不能出现
             if (
                 self.allowed_paths
                 and tuple(new_path.dataframes()) not in self.allowed_paths
             ):
                 continue
 
+            # 递归
             new_max_depth = None
             if max_depth is not None:
                 new_max_depth = max_depth - 1
@@ -451,6 +466,8 @@ class DeepFeatureSynthesis(object):
 
         """
         Step 3 - Create aggregation features for all deep backward relationships
+        后向查询是深度优先的，构造时想要拿到某个节点家族的所有的后向关系，则需要深度查找
+        这一步是把他的所有的后向找到，否则只有深度查找不能找到他的多个后向
         """
 
         backward_dataframes = self.es.get_backward_dataframes(
@@ -468,6 +485,7 @@ class DeepFeatureSynthesis(object):
             ):
                 continue
 
+            # 后向关系是一对多，所以特征的多种含义也应当是把对应的多给聚合起来，所以找到后向关系后对关系的这俩进行聚合
             self._build_agg_features(
                 parent_dataframe=self.es[dataframe.ww.name],
                 child_dataframe=self.es[b_dataframe_id],
@@ -484,6 +502,7 @@ class DeepFeatureSynthesis(object):
 
         """
         Step 5 - Recursively build features for each dataframe in a forward relationship
+        前向关系即从叶子节点向上走，即多对一，示例：多个订单对应一个用户
         """
 
         forward_dataframes = self.es.get_forward_dataframes(dataframe.ww.name)
@@ -867,7 +886,7 @@ class DeepFeatureSynthesis(object):
                 self._handle_new_feature(new_f, all_features)
 
                 # limit the stacking of where features
-                # count up the the number of where features
+                # count up the number of where features
                 # in this feature and its dependencies
                 feat_wheres = []
                 for f in matching_input:

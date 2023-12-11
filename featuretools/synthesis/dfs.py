@@ -249,12 +249,12 @@ def dfs(
         trans_primitives=trans_primitives,
         groupby_trans_primitives=groupby_trans_primitives,
         max_depth=max_depth,
-        where_primitives=where_primitives,
+        where_primitives=where_primitives,    # where这个选择哪些算子会被加上where，需要提前对df里的col设置interesing_values，然后就会对所有的和单独的进行算子运算
         allowed_paths=allowed_paths,
         drop_exact=drop_exact,
         drop_contains=drop_contains,
-        ignore_dataframes=ignore_dataframes,
-        ignore_columns=ignore_columns,
+        ignore_dataframes=ignore_dataframes,    # 当是个大ES可以选择DF某些不参与生成
+        ignore_columns=ignore_columns,    # DF里的某些col可以不参与
         primitive_options=primitive_options,
         max_features=max_features,
         seed_features=seed_features,

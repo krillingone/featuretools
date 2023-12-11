@@ -112,12 +112,16 @@ class PrimitiveBase(object):
 
         return values
 
+    """
+    获取算子生成描述的default方法
+    """
     def get_description(
         self,
         input_column_descriptions,
         slice_num=None,
         template_override=None,
     ):
+        # 优先使用传入的描述模板
         template = template_override or self.description_template
         if template:
             if isinstance(template, list):

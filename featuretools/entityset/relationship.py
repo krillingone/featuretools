@@ -140,6 +140,12 @@ class Relationship(object):
 
 class RelationshipPath(object):
     def __init__(self, relationships_with_direction):
+        """
+        Args
+            relationships_with_direction: List<bool, relationship>
+
+        boolean值指示是否是前向关系： true 前向关系    false 后向关系
+        """
         self._relationships_with_direction = relationships_with_direction
 
     @property

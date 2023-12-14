@@ -180,6 +180,7 @@ class FeatureBase(object):
             stop_at_set = set([i.unique_name() for i in stop_at])
             if self.unique_name() in stop_at_set:
                 return 0
+        # 一个特征可能由多个不同深度的特征构造而来，找到所有的依赖特征，递归的形式找到最大的
         for dep in self.get_dependencies(deep=True, ignored=stop_at_set):
             max_depth = max(dep.get_depth(stop_at=stop_at), max_depth)
         return max_depth + 1

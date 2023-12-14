@@ -275,6 +275,7 @@ class DeepFeatureSynthesis(object):
             + self.where_primitives
             + self.groupby_trans_primitives
         )
+        # 坏算子，featuretools对dask、spark都做了适配，所以如果传入的算子不支持，需要找出来报错
         bad_primitives = [
             prim.name for prim in all_primitives if df_library not in prim.compatibility
         ]
@@ -321,7 +322,8 @@ class DeepFeatureSynthesis(object):
         # Map<Object, Set>
         self.where_clauses = defaultdict(set)
 
-        # 返回类型，没写就是这些，大多数来说被处理过都会有个tag，没有的话可能可以拿来作为不用输出的中间变量
+        # 返回类型，没写就是这些，大多数来说被处理过都会有个tag，因为定义primitive时会有个成员变量
+        # 没有的话可能可以拿来作为不用输出的中间变量
         if return_types is None:
             return_types = [
                 ColumnSchema(semantic_tags=["numeric"]),
@@ -1107,6 +1109,8 @@ def _find_root_primitive(feature):
     """
     If a feature is a DirectFeature, finds the primitive of
     the "original" base feature.
+    DirectFeature实则是在另一个feature上包了一层，没有实质上的算子
+    所以需要找到内部的特征的算子
     """
     if isinstance(feature, DirectFeature):
         return _find_root_primitive(feature.base_features[0])
@@ -1119,6 +1123,7 @@ def can_stack_primitive_on_inputs(primitive, inputs):
     using the stacking rules.
     Returns True if stacking is possible, and False if not.
     """
+    # 当前primitive的stack信息
     primitive_class = primitive.__class__
     tup_primitive_stack_on = (
         tuple(primitive.stack_on) if primitive.stack_on is not None else None
@@ -1135,30 +1140,39 @@ def can_stack_primitive_on_inputs(primitive, inputs):
         # However, we want to check stacking rules with the primitive the DirectFeature is based on.
         f_primitive = _find_root_primitive(feature)
 
+        # 是否自叠压
         if not primitive_stack_on_self and isinstance(f_primitive, primitive_class):
             return False
 
+        # newPrimitive能否叠压inputs
         if isinstance(f_primitive, tup_primitive_stack_on_exclude):
             return False
 
+        # 感觉是个工程问题，就算多个输出肯定是能够分开关联的
+        # 示例：计算一个英语母语社区用户写大写的多少，生成小写数量 & 大写数量，在后续仍可以groupby user 进行sum，没问题的
+        # 注：是否需要取消看计算难度（sql构造难度）
         if feature.number_output_features > 1:
             return False
 
+        # inputs定义能够被newPrimitive叠压
         if f_primitive.base_of_exclude is not None and isinstance(
             primitive,
             tuple(f_primitive.base_of_exclude),
         ):
             return False
 
+        # 自叠压
         if primitive_stack_on_self and isinstance(f_primitive, primitive_class):
             continue
 
+        # newPrimitive可以叠压在inputs上
         if tup_primitive_stack_on is None or isinstance(
             f_primitive,
             tup_primitive_stack_on,
         ):
             continue
 
+        # 在inputs的被叠压允许内
         if f_primitive.base_of is None:
             continue
         if primitive_class in f_primitive.base_of:
@@ -1254,6 +1268,9 @@ def check_primitive(
             else "groupby_trans_primitives"
         )
         s = "a transform"
+    # 为了保证处理后的数据集的一致，包括列数与数值的一致（这里说的是部分筛选出来做处理，另一部分按Nan处理，不合理），所以where与聚合一组
+    # where需要与interesting_values连用，即对不同的where进行分组聚合
+    # 转换的不同范围转换逻辑不同应是使用映射处理
     if prim_type in ("aggregation", "where"):
         prim_dict = aggregation_primitive_dict
         supertype = AggregationPrimitive
@@ -1295,6 +1312,8 @@ def _build_ignore_columns(input_dict: Dict[str, List[str]]) -> DefaultDict[str, 
     """Iterates over the input dictionary to build the ignore_columns defaultdict.
     Expects the input_dict's keys to be strings, and values to be lists of strings.
     Throws a TypeError if they are not.
+
+    Arg Example: ignore_columns={"customers": ["loves_ice_cream"]}
     """
     ignore_columns = defaultdict(set)
     if input_dict is not None:

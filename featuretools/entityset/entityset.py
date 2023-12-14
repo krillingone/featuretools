@@ -542,7 +542,7 @@ class EntitySet(object):
         Get dataframes that are in a backward relationship with dataframe
 
         Args:
-            dataframe_name (str): Name of dataframe to search from.
+            dataframe_name (str): Name of daaframe to search from.
             deep (bool): if True, recursively find backward dataframes.
 
         Yields a tuple of (descendent_name, path from dataframe_name to descendant).

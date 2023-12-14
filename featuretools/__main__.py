@@ -160,6 +160,8 @@ def main_4():
         features_only=True,
     )
 
+    print(feature_defs)
+
     print("point")
 
 
@@ -221,4 +223,19 @@ def main_5(threshold):
 
 
 if __name__ == "__main__":
-    main_4()
+    es = ft.demo.load_mock_customer(return_entityset=True)
+    values_dict = {"device": ["desktop", "mobile", "tablet"]}
+    es.add_interesting_values(dataframe_name="sessions", values=values_dict)
+    es.add_interesting_values(dataframe_name="products", values={"brand":es["products"]["brand"].unique().tolist()})
+
+    feature_defs = ft.dfs(
+        entityset=es,
+        target_dataframe_name="customers",
+        max_depth=4,
+        agg_primitives=['sum', 'std', 'count'],
+        features_only=True,
+    )
+
+    print(feature_defs)
+
+    print("point")

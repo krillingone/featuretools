@@ -11,6 +11,8 @@ def entry_point(name):
         def function_wrapper(*args, **kwargs):
             """function_wrapper of greeting"""
             # add positional args as named kwargs
+            # args是不定长参数，kwargs是字典类型参数，这里把args的参数转成kwargs
+            # 这个在python是需要处理的，如果函数参数只搞了部分，则根据顺序赋值给前面几个
             on_call_kwargs = kwargs.copy()
             sig = signature(func)
             for arg, parameter in zip(args, sig.parameters):

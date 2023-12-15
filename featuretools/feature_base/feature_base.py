@@ -71,6 +71,11 @@ class FeatureBase(object):
         )
 
     def __getitem__(self, key):
+        """
+        从多输出特征中获取分特征
+        多输出特征刚开始还是用一个primitive包了一个出来，后续其parentDataframe处理转换成slice处理，slice的number_output_feature=1
+        由此多输出算子构造的特征的sub特征也可以继续处理
+        """
         assert (
             self.number_output_features > 1
         ), "can only access slice of multi-output feature"
@@ -105,6 +110,8 @@ class FeatureBase(object):
                 self._names = [self.get_name()]
             else:
                 self._names = self.generate_names()
+                # 这里是没有自定义generate_name 或 定义的列名与输出列数量对不上 出现的情况
+                # 就需要以默认的方式：下标进行标记
                 if self.get_name() != self.generate_name():
                     self._names = [
                         self.get_name() + "[{}]".format(i)

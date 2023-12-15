@@ -1148,9 +1148,8 @@ def can_stack_primitive_on_inputs(primitive, inputs):
         if isinstance(f_primitive, tup_primitive_stack_on_exclude):
             return False
 
-        # 感觉是个工程问题，就算多个输出肯定是能够分开关联的
-        # 示例：计算一个英语母语社区用户写大写的多少，生成小写数量 & 大写数量，在后续仍可以groupby user 进行sum，没问题的
-        # 注：是否需要取消看计算难度（sql构造难度）
+        # 在此之前，findMatchingInputs就会把number_output_features > 1 的都给切成一个个的 @see{FeatureOutputSlice}
+        # 此时如果大于1其实算bug
         if feature.number_output_features > 1:
             return False
 

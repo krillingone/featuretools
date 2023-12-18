@@ -6,6 +6,92 @@ Release Notes
 Future Release
 ==============
     * Enhancements
+    * Fixes
+    * Changes
+    * Documentation Changes
+    * Testing Changes
+      * Update tests for compatibility with new versions of ``holidays`` (:pr:`2636`)
+      * Update ruff to 0.1.6 and use ruff linter/formatter (:pr:`2639`)
+
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`thehomebrewnerd`
+
+
+v1.28.0 Oct 26, 2023
+====================
+    * Fixes
+        * Fix bug with default value in ``PercentTrue`` primitive (:pr:`2627`)
+    * Changes
+        * Refactor ``featuretools/tests/primitive_tests/utils.py`` to leverage list comprehensions for improved Pythonic quality (:pr:`2607`)
+        * Refactor ``can_stack_primitive_on_inputs`` (:pr:`2522`)
+        * Update s3 bucket for docs image (:pr:`2593`)
+        * Temporarily restrict pandas max version to ``<2.1.0`` and pyarrow to ``<13.0.0`` (:pr:`2609`)
+        * Update for compatibility with pandas version ``2.1.0`` and remove pandas upper version restriction (:pr:`2616`)
+    * Documentation Changes
+        * Fix badge on README for tests (:pr:`2598`)
+        * Update readthedocs config to use build.os (:pr:`2601`)
+    * Testing Changes
+        * Update airflow looking glass performance tests workflow (:pr:`2615`)
+        * Removed old performance testing workflow (:pr:`2620`)
+
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`petejanuszewski1`, :user:`thehomebrewnerd`, :user:`tosemml`
+
+v1.27.0 Jul 24, 2023
+====================
+    * Enhancements
+        * Add support for Python 3.11 (:pr:`2583`)
+        * Add support for ``pandas`` v2.0 (:pr:`2585`)
+    * Changes
+        * Remove natural language primitives add-on (:pr:`2570`)
+        * Updates to address various warnings (:pr:`2589`)
+    * Testing Changes
+        * Run looking glass performance tests on merge via Airflow (:pr:`2575`)
+
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`petejanuszewski1`, :user:`sbadithe`, :user:`thehomebrewnerd`
+
+v1.26.0 Apr 27, 2023
+====================
+    * Enhancements
+        * Introduce New Single-Table DFS Algorithm (:pr:`2516`). This includes **experimental** functionality and is not officially supported.
+        * Add premium primitives install command (:pr:`2545`)
+    * Fixes
+        * Fix Description of ``DaysInMonth`` (:pr:`2547`)
+    * Changes
+        * Make Dask an optional dependency (:pr:`2560`)
+
+    Thanks to the following people for contributing to this release:
+    :user:`dvreed77`, :user:`gsheni`, :user:`thehomebrewnerd`
+
+Breaking Changes
+++++++++++++++++
+* Dask is now an optional dependency of Featuretools. Users that run ``calculate_feature_matrix`` with ``n_jobs`` set
+  to anything other than 1, will now need to install Dask prior to running ``calculate_feature_matrix``. The required Dask
+  dependencies can be installed with ``pip install "featuretools[dask]"``.
+
+v1.25.0 Apr 13, 2023
+====================
+    * Enhancements
+        * Add ``MaxCount``, ``MedianCount``, ``MaxMinDelta``, ``NUniqueDays``, ``NMostCommonFrequency``,
+            ``NUniqueDaysOfCalendarYear``, ``NUniqueDaysOfMonth``, ``NUniqueMonths``,
+            ``NUniqueWeeks``, ``IsFirstWeekOfMonth`` (:pr:`2533`)
+        * Add ``HasNoDuplicates``, ``NthWeekOfMonth``, ``IsMonotonicallyDecreasing``, ``IsMonotonicallyIncreasing``,
+            ``IsUnique`` (:pr:`2537`)
+    * Fixes
+        * Fix release notes header version (:pr:`2544`)
+    * Changes
+        * Restrict pandas to < 2.0.0 (:pr:`2533`)
+        * Upgrade minimum pandas to 1.5.0 (:pr:`2537`)
+        * Removed the ``Correlation`` and ``AutoCorrelation`` primitive as these could lead to data leakage (:pr:`2537`)
+        * Remove IntegerNullable support for ``Kurtosis`` primitive  (:pr:`2537`)
+
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`
+
+v1.24.0 Mar 28, 2023
+====================
+    * Enhancements
         * Add ``AverageCountPerUnique``, ``CountryCodeToContinent``, ``FileExtension``, ``FirstLastTimeDelta``, ``SavgolFilter``,
             ``CumulativeTimeSinceLastFalse``, ``CumulativeTimeSinceLastTrue``, ``PercentChange``, ``PercentUnique`` (:pr:`2485`)
         * Add ``FullNameToFirstName``, ``FullNameToLastName``, ``FullNameToTitle``, ``AutoCorrelation``,
@@ -15,13 +101,12 @@ Future Release
     * Fixes
         * Pin github-action-check-linked-issues to 1.4.5 (:pr:`2497`)
         * Support Woodwork's update numeric inference (integers as strings) (:pr:`2505`)
+        * Update ``SubtractNumeric`` Primitive with commutative class property (:pr:`2527`)
     * Changes
         * Separate Makefile command for core requirements, test requirements and dev requirements (:pr:`2518`)
-    * Documentation Changes
-    * Testing Changes
 
     Thanks to the following people for contributing to this release:
-    :user:`gsheni`
+    :user:`dvreed77`, :user:`gsheni`, :user:`ozzieD`
 
 v1.23.0 Feb 15, 2023
 ====================
@@ -34,7 +119,7 @@ v1.23.0 Feb 15, 2023
        * Remove make package from lint workflow (:pr:`2479`)
 
     Thanks to the following people for contributing to this release:
-    :user:`dreed`, :user:`gsheni`, :user:`sbadithe`
+    :user:`dvreed77`, :user:`gsheni`, :user:`sbadithe`
 
 v1.22.0 Jan 31, 2023
 ====================

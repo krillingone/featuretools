@@ -11,7 +11,7 @@ from featuretools import (
     load_features,
     save_features,
 )
-from featuretools.primitives.base import AggregationPrimitive
+from featuretools.primitives.base import AggregationPrimitive, PrimitiveBase
 from featuretools.tests.testing_utils import make_ecommerce_entityset
 
 PRIMITIVES = list_primitives()
@@ -161,6 +161,9 @@ def valid_dfs(
     if not isinstance(feature_substrings, list):
         feature_substrings = [feature_substrings]
 
+    if any([issubclass(x, PrimitiveBase) for x in feature_substrings]):
+        feature_substrings = [x.name.upper() for x in feature_substrings]
+
     features = dfs(
         entityset=es,
         target_dataframe_name=target_dataframe_name,
@@ -172,9 +175,9 @@ def valid_dfs(
     )
     applicable_features = []
     for feat in features:
-        for x in feature_substrings:
-            if x in feat.get_name():
-                applicable_features.append(feat)
+        applicable_features += [
+            feat for x in feature_substrings if x in feat.get_name()
+        ]
     if len(applicable_features) == 0:
         raise ValueError(
             "No feature names with %s, verify the name attribute \

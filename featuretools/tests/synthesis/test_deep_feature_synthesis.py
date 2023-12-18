@@ -134,7 +134,7 @@ def test_errors_unsupported_primitives(es):
     bad_trans_prim.compatibility, bad_agg_prim.compatibility = [], []
     library = es.dataframe_type
     error_text = "Selected primitives are incompatible with {} EntitySets: cum_sum, num_unique".format(
-        library,
+        library.value,
     )
     with pytest.raises(ValueError, match=error_text):
         DeepFeatureSynthesis(
@@ -1906,7 +1906,9 @@ def test_primitive_ordering():
 
 def test_no_transform_stacking():
     df1 = pd.DataFrame({"id": [0, 1, 2, 3], "A": [0, 1, 2, 3]})
-    df2 = pd.DataFrame({"first_id": [0, 1, 1, 3], "B": [99, 88, 77, 66]})
+    df2 = pd.DataFrame(
+        {"index": [0, 1, 2, 3], "first_id": [0, 1, 1, 3], "B": [99, 88, 77, 66]},
+    )
 
     dataframes = {"first": (df1, "id"), "second": (df2, "index")}
     relationships = [("first", "id", "second", "first_id")]

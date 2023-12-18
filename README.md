@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/alteryx/featuretools/actions?query=branch%3Amain+workflow%3ATests" target="_blank">
-        <img src="https://github.com/alteryx/featuretools/workflows/Tests/badge.svg?branch=main" alt="Tests" />
+    <a href="https://github.com/alteryx/featuretools/actions/workflows/tests_with_latest_deps.yaml" alt="Tests" target="_blank">
+        <img src="https://github.com/alteryx/featuretools/actions/workflows/tests_with_latest_deps.yaml/badge.svg?branch=main" alt="Tests" />
     </a>
     <a href="https://codecov.io/gh/alteryx/featuretools">
         <img src="https://codecov.io/gh/alteryx/featuretools/branch/main/graph/badge.svg"/>
@@ -25,7 +25,7 @@
         <img src="http://img.shields.io/badge/questions-on_stackoverflow-blue.svg" alt="StackOverflow" />
     </a>
     <a href="https://pepy.tech/project/featuretools" target="_blank">
-        <img src="https://pepy.tech/badge/featuretools/month" alt="PyPI Downloads" />
+        <img src="https://static.pepy.tech/badge/featuretools/month" alt="PyPI Downloads" />
     </a>
 </p>
 <hr>
@@ -59,16 +59,22 @@ python -m pip install "featuretools[complete]"
 python -m pip install "featuretools[updater]"
 ```
 
-**NLP Primitives** - Use Natural Language Processing Primitives:
+**Premium Primitives** - Use Premium Primitives, including Natural Language Processing primitives:
 
 ```
-python -m pip install "featuretools[nlp]"
+python -m pip install "featuretools[premium]"
 ```
 
 **TSFresh Primitives** - Use 60+ primitives from [tsfresh](https://tsfresh.readthedocs.io/en/latest/) within Featuretools
 
 ```
 python -m pip install "featuretools[tsfresh]"
+```
+
+**Dask Support** - Use Dask Dataframes to create EntitySets or run DFS with njobs > 1
+
+```
+python -m pip install "featuretools[dask]"
 ```
 
 **SQL** - Automatic EntitySet generation from relational data stored in a SQL database: 

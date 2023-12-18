@@ -1,9 +1,11 @@
-from dask import dataframe as dd
+import pandas as pd
 from woodwork.column_schema import ColumnSchema
 from woodwork.logical_types import Boolean, BooleanNullable, Double
 
 from featuretools.primitives.base.aggregation_primitive_base import AggregationPrimitive
-from featuretools.utils.gen_utils import Library
+from featuretools.utils.gen_utils import Library, import_or_none
+
+dd = import_or_none("dask.dataframe")
 
 
 class PercentTrue(AggregationPrimitive):
@@ -29,7 +31,7 @@ class PercentTrue(AggregationPrimitive):
     return_type = ColumnSchema(logical_type=Double, semantic_tags={"numeric"})
     stack_on = []
     stack_on_exclude = []
-    default_value = 0
+    default_value = pd.NA
     compatibility = [Library.PANDAS, Library.DASK]
     description_template = "the percentage of true values in {}"
 

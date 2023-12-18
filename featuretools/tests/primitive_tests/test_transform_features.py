@@ -1,6 +1,5 @@
 from inspect import isclass
 
-import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
@@ -86,8 +85,10 @@ from featuretools.primitives import (
 )
 from featuretools.synthesis.deep_feature_synthesis import match
 from featuretools.tests.testing_utils import to_pandas
-from featuretools.utils.gen_utils import Library
+from featuretools.utils.gen_utils import Library, import_or_none
 from featuretools.utils.spark_utils import pd_to_spark_clean
+
+dd = import_or_none("dask.dataframe")
 
 
 def test_init_and_name(es):
@@ -136,7 +137,7 @@ def test_init_and_name(es):
 
         # use the input_types matching function from DFS
         input_types = transform_prim.input_types
-        if type(input_types[0]) == list:
+        if isinstance(input_types[0], list):
             matching_inputs = match(input_types[0], features_to_use)
         else:
             matching_inputs = match(input_types, features_to_use)
@@ -213,6 +214,7 @@ def pd_simple_es():
 
 @pytest.fixture
 def dd_simple_es(pd_simple_es):
+    dd = pytest.importorskip("dask.dataframe", reason="Dask not installed, skipping")
     dataframes = {}
     for df in pd_simple_es.dataframes:
         dataframes[df.ww.name] = (
@@ -797,6 +799,7 @@ def pd_boolean_mult_es():
 
 @pytest.fixture
 def dask_boolean_mult_es(pd_boolean_mult_es):
+    dd = pytest.importorskip("dask.dataframe", reason="Dask not installed, skipping")
     dataframes = {}
     for df in pd_boolean_mult_es.dataframes:
         dataframes[df.ww.name] = (
@@ -1465,7 +1468,7 @@ def test_get_filepath(es):
 
         def get_function(self):
             filepath = self.get_filepath("featuretools_unit_test_example.csv")
-            reference = pd.read_csv(filepath, header=None, squeeze=True)
+            reference = pd.read_csv(filepath, header=None).squeeze("columns")
 
             def map_to_word(x):
                 def _map(x):

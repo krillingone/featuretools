@@ -2,13 +2,13 @@ from datetime import datetime
 
 import pandas as pd
 import pytest
-from dask import dataframe as dd
 from woodwork.logical_types import Categorical, Datetime, Integer
 
 from featuretools.entityset.entityset import LTI_COLUMN_NAME
 from featuretools.tests.testing_utils import to_pandas
 from featuretools.utils.gen_utils import Library, import_or_none
 
+dd = import_or_none("dask.dataframe")
 ps = import_or_none("pyspark.pandas")
 
 
@@ -92,7 +92,7 @@ def extra_session_df(es):
     row_values = {"customer_id": 2, "device_name": "PC", "device_type": 0, "id": 6}
     row = pd.DataFrame(row_values, index=pd.Index([6], name="id"))
     df = to_pandas(es["sessions"])
-    df = df.append(row, sort=True).sort_index()
+    df = pd.concat([df, row]).sort_index()
     if es.dataframe_type == Library.DASK:
         df = dd.from_pandas(df, npartitions=3)
     elif es.dataframe_type == Library.SPARK:
@@ -152,14 +152,13 @@ class TestLastTimeIndex(object):
 
         # add extra value instance with no children
         row_values = {
-            "value": 21.0,
-            "value_time": pd.Timestamp("2011-04-10 11:10:02"),
-            "values_id": 21.0,
+            "value": [21.0],
+            "value_time": [pd.Timestamp("2011-04-10 11:10:02")],
         }
         # make sure index doesn't have same name as column to suppress pandas warning
         row = pd.DataFrame(row_values, index=pd.Index([21]))
-        df = values.append(row, sort=True)
-        df = df[["value", "value_time"]].sort_values(by="value")
+        df = pd.concat([values, row])
+        df = df.sort_values(by="value")
         df.index.name = None
 
         values_es.replace_dataframe(dataframe_name="values", df=df)
@@ -288,12 +287,12 @@ class TestLastTimeIndex(object):
 
         # add row to wishlist df so new session instance in in wishlist_log
         row_values = {
-            "session_id": 6,
-            "datetime": pd.Timestamp("2011-04-11 11:11:11"),
-            "product_id": "toothpaste",
+            "session_id": [6],
+            "datetime": [pd.Timestamp("2011-04-11 11:11:11")],
+            "product_id": ["toothpaste"],
         }
         row = pd.DataFrame(row_values, index=pd.RangeIndex(start=7, stop=8))
-        df = wishlist_df.append(row)
+        df = pd.concat([wishlist_df, row])
         if es.dataframe_type == Library.DASK:
             df = dd.from_pandas(df, npartitions=2)
         logical_types = {
@@ -341,12 +340,12 @@ class TestLastTimeIndex(object):
 
         # add row to wishlist_log so extra session has child instance
         row_values = {
-            "session_id": 6,
-            "datetime": pd.Timestamp("2011-04-11 11:11:11"),
-            "product_id": "toothpaste",
+            "session_id": [6],
+            "datetime": [pd.Timestamp("2011-04-11 11:11:11")],
+            "product_id": ["toothpaste"],
         }
         row = pd.DataFrame(row_values, index=pd.RangeIndex(start=7, stop=8))
-        df = wishlist_df.append(row)
+        df = pd.concat([wishlist_df, row])
 
         # drop instance 4 so wishlist_log does not have session id 3 instance
         df.drop(4, inplace=True)

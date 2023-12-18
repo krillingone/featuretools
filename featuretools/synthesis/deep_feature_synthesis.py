@@ -890,6 +890,7 @@ class DeepFeatureSynthesis(object):
                 # limit the stacking of where features
                 # count up the the number of where features
                 # in this feature and its dependencies
+                # where的堆叠层数，不是多少个where而是多少层(因为featuretools默认是每一层聚合只能有一个where条件)
                 feat_wheres = []
                 for f in matching_input:
                     if isinstance(f, AggregationFeature) and f.where is not None:
@@ -1125,6 +1126,13 @@ def _check_if_stacking_is_prohibited(
     primitive_stack_on_self: bool,
     tuple_primitive_stack_on_exclude: Tuple[Type[PrimitiveBase]],
 ):
+    """
+    检查是否当前primitive不允许在(primitive, f_primitive)堆叠
+    1. 定义不能堆叠在自身，拒绝
+    2. 预堆叠算子定义[不能堆叠其上的算子]，底算子在定义中，拒绝
+    3. 特征输出列数量大于1，是多输出算子输出没有分开，是bug，正常肯定分开了的，拒绝
+    4. 底算子定义的[不可作为其他算子底]中包含当前预堆叠算子，拒绝
+    """
     if not primitive_stack_on_self and isinstance(f_primitive, primitive_class):
         return True
 
@@ -1148,6 +1156,11 @@ def _check_if_stacking_is_permitted(
     primitive_stack_on_self: bool,
     tuple_primitive_stack_on: Tuple[Type[PrimitiveBase]],
 ):
+    """
+    1. 允许堆叠自身之上，同意
+    2. 预堆叠算子定义的[可叠压底算子]是空 或 底算子在定义中，同意
+    3. 底算子定义的[可作为其他算子底]参数为空 或 预堆叠算子在定义中，同意
+    """
     if primitive_stack_on_self and isinstance(f_primitive, primitive_class):
         return True
     if tuple_primitive_stack_on is None or isinstance(

@@ -1,3 +1,5 @@
+import re
+
 from woodwork.column_schema import ColumnSchema
 
 from featuretools.demo import load_mock_customer
@@ -6,6 +8,7 @@ import featuretools as ft
 from woodwork.logical_types import Categorical, PostalCode, Age, AgeNullable, NaturalLanguage
 
 import pandas as pd
+import numpy as np
 
 from featuretools.primitives import TransformPrimitive
 
@@ -86,6 +89,7 @@ class CaseCount(TransformPrimitive):
     def generate_names(self, base_feature_names):
         name = self.generate_name(base_feature_names)
         return f"{name}[upper]", f"{name}[lower]"
+
 
 def main_1():
     data = load_mock_customer()
@@ -291,12 +295,13 @@ if __name__ == "__main__":
     es = ft.demo.load_mock_customer(return_entityset=True)
     values_dict = {"device": ["desktop", "mobile", "tablet"]}
     es.add_interesting_values(dataframe_name="sessions", values=values_dict)
-    es.add_interesting_values(dataframe_name="products", values={"brand":es["products"]["brand"].unique().tolist()})
+    es.add_interesting_values(dataframe_name="sessions", values={"customer_id": es["sessions"]["customer_id"].unique().tolist()})
+    es.add_interesting_values(dataframe_name="products", values={"brand": es["products"]["brand"].unique().tolist()})
 
     feature_defs = ft.dfs(
         entityset=es,
         target_dataframe_name="customers",
-        max_depth=4,
+        max_depth=5,
         agg_primitives=['sum', 'std', 'count'],
         features_only=True,
     )

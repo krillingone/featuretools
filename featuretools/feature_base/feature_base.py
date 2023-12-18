@@ -182,6 +182,8 @@ class FeatureBase(object):
     def get_depth(self, stop_at=None):
         """Returns depth of feature"""
         max_depth = 0
+        # seed_feature 是自己构造出来的，是对单表的一列或多列进行的转换操作
+        # 因为依赖的是自己的东西，所以深度应当与它的依赖一致，为0
         stop_at_set = set()
         if stop_at is not None:
             stop_at_set = set([i.unique_name() for i in stop_at])

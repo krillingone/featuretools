@@ -258,6 +258,8 @@ def dfs(
         primitive_options=primitive_options,
         max_features=max_features,
         seed_features=seed_features,
+        # todo krill : change here to stack more where clause in features
+        where_stacking_limit=2
     )
 
     features = dfs_object.build_features(verbose=verbose, return_types=return_types)

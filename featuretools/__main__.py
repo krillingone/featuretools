@@ -291,21 +291,91 @@ def main_self_join_by_duplicate_df():
     print(features_defs)
 
 
-if __name__ == "__main__":
+def main_7():
+    data = load_mock_customer()
+    transactions_df = data["transactions"]
+    sessions_df = data["sessions"]
+    customers_df = data['customers']
+    products_df = data["products"]
+
+    es = ft.EntitySet(id="total")
+    es = es.add_dataframe(
+        dataframe_name="transactions",
+        dataframe=transactions_df,
+        index="transaction_id",
+        time_index="transaction_time",
+        logical_types={
+            "product_id": Categorical
+        },
+    )
+    print(es["transactions"].ww)
+
+    es = es.add_dataframe(
+        dataframe_name="products",
+        dataframe=products_df,
+        index="product_id"
+    )
+    print(es["transactions"].ww)
+
+    es.add_relationship("products", "product_id", "transactions", "product_id")
+
+    es = es.add_dataframe(
+        dataframe=sessions_df,
+        dataframe_name="sessions",
+        index="session_id",
+        time_index="session_start"
+    )
+    es.add_relationship("sessions", "session_id", "transactions", "session_id")
+
+    es = es.add_dataframe(
+        dataframe=customers_df,
+        dataframe_name="customers",
+        index="customer_id",
+        time_index="join_date",
+        logical_types={
+            "zip_code": PostalCode
+        },
+        semantic_tags={
+            "birthday": "date_of_birth"
+        }
+    )
+    es.add_relationship("customers", "customer_id", "sessions", "customer_id")
+
+    feature_product_defs = ft.dfs(
+        entityset=es,
+        target_dataframe_name="sessions",
+        max_depth=3,
+        trans_primitives=['age'],
+        agg_primitives=['sum', 'count'],
+        features_only=True,
+
+    )
+    print(feature_product_defs)
+
+
+def main_main():
     es = ft.demo.load_mock_customer(return_entityset=True)
     values_dict = {"device": ["desktop", "mobile", "tablet"]}
     es.add_interesting_values(dataframe_name="sessions", values=values_dict)
-    es.add_interesting_values(dataframe_name="sessions", values={"customer_id": es["sessions"]["customer_id"].unique().tolist()})
+    es.add_interesting_values(dataframe_name="sessions",
+                              values={"customer_id": es["sessions"]["customer_id"].unique().tolist()})
+    es.add_interesting_values(dataframe_name="transactions",
+                              values={"product_id": es["transactions"]["product_id"].unique().tolist()})
     es.add_interesting_values(dataframe_name="products", values={"brand": es["products"]["brand"].unique().tolist()})
 
     feature_defs = ft.dfs(
         entityset=es,
         target_dataframe_name="customers",
         max_depth=5,
-        agg_primitives=['sum', 'std', 'count'],
+        trans_primitives=['not_equal', 'day'],
+        agg_primitives=['sum', 'mode', 'count'],
         features_only=True,
     )
 
     print(feature_defs)
 
     print("point")
+
+
+if __name__ == "__main__":
+    main_main()

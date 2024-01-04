@@ -110,8 +110,7 @@ class FeatureBase(object):
                 self._names = [self.get_name()]
             else:
                 self._names = self.generate_names()
-                # 这里是没有自定义generate_name 或 定义的列名与输出列数量对不上 出现的情况
-                # 就需要以默认的方式：下标进行标记
+                # feature参数指定了name就需要以默认的方式：下标进行标记
                 if self.get_name() != self.generate_name():
                     self._names = [
                         self.get_name() + "[{}]".format(i)

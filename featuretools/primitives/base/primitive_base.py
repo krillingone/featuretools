@@ -39,6 +39,7 @@ class PrimitiveBase(object):
     # determines if primitive can be in input_types for self
     stack_on_self = True
     # (bool) If True will only make one feature per unique set of base features
+    # todo krill 没看懂，需要看看可能
     commutative = False
     #: (list): Additional compatible libraries
     compatibility = [Library.PANDAS]

@@ -822,6 +822,8 @@ class DeepFeatureSynthesis(object):
                 continue
 
             # limits allowing direct features of agg_feats with where clauses
+            # 屁用没有，这个continue现在还只是遍历了一下，无论有没有where都会创建个directFeature
+            # 按道理来说，也不应该，因为target_dataframe得要拿到所有的feature才好
             if isinstance(f, AggregationFeature):
                 deep_base_features = [f] + f.get_dependencies(deep=True)
                 for feat in deep_base_features:
@@ -915,6 +917,8 @@ class DeepFeatureSynthesis(object):
 
                 for where in wheres:
                     # limits the where feats so they are different than base feats
+                    # 新聚合特征子表特征名列表，where列在该新特征中没有才进行where筛选
+                    # 毕竟类似与MODE(product_id)还是有意义,MODE(product_id where product_id = 1)屁用没有
                     base_names = [f.unique_name() for f in new_f.base_features]
                     if any(
                         True
@@ -1237,6 +1241,7 @@ def match(
 
     matches = match_by_schema(features, to_match)
 
+    # 算子的inputType.size是1的话，每一个都返回list<tuple>
     if len(input_types) == 1:
         return [
             (m,)
